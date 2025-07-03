@@ -10,17 +10,18 @@ exports.createWidget = async (req, res) => {
 
     // Check user's plan limits
     const user = await User.findById(userId);
-    const planLimits = {
-      free: 1,
-      pro: 5,
-      premium: 20,
-    };
+    // change the limit
+    // const planLimits = {
+    //   free: 1,
+    //   pro: 5,
+    //   premium: 20,
+    // };
 
-    if (user.widgetCount >= planLimits[user.plan]) {
-      return res.status(400).json({
-        message: `Widget limit reached for ${user.plan} plan. Upgrade to create more widgets.`,
-      });
-    }
+    // if (user.widgetCount >= planLimits[user.plan]) {
+    //   return res.status(400).json({
+    //     message: `Widget limit reached for ${user.plan} plan. Upgrade to create more widgets.`,
+    //   });
+    // }
 
     // Generate unique embed ID
     const embedId = crypto.randomBytes(16).toString("hex");

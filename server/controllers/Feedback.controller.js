@@ -30,17 +30,17 @@ exports.submitFeedback = async (req, res) => {
 
     // Check user's plan limits
     const user = await User.findById(widget.userId);
-    const planLimits = {
-      free: 10,
-      pro: 100,
-      premium: 1000,
-    };
+    // const planLimits = {
+    //   free: 10,
+    //   pro: 100,
+    //   premium: 1000,
+    // };
 
-    if (user.feedbackCount >= planLimits[user.plan]) {
-      return res.status(400).json({
-        message: "Feedback limit reached for this widget's plan",
-      });
-    }
+    // if (user.feedbackCount >= planLimits[user.plan]) {
+    //   return res.status(400).json({
+    //     message: "Feedback limit reached for this widget's plan",
+    //   });
+    // }
 
     // Create feedback
     const feedback = new Feedback({
