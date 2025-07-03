@@ -20,7 +20,20 @@ app.get("/", (req, res) => {
 });
 
 const userRoutes = require("./routes/User.route");
+const widgetRoutes = require("./routes/Widget.route");
+const feedbackRoutes = require("./routes/Feedback.route");
+const testimonialWallRoutes = require("./routes/TestimonialWall.route");
+
 app.use("/api/users", userRoutes);
+app.use("/api/widgets", widgetRoutes);
+app.use("/api/feedbacks", feedbackRoutes);
+app.use("/api/testimonial-walls", testimonialWallRoutes);
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: "Internal Server Error" });
+});
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

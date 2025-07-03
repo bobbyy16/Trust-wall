@@ -29,7 +29,7 @@ exports.signup = async (req, res) => {
       verificationTokenExpires: Date.now() + 60 * 60 * 1000, // 1 hour
     });
 
-    // ✅ call save explicitly to trigger pre-save hook
+    // call save explicitly to trigger pre-save hook
     await user.save();
 
     const verifyLink = `${process.env.BACKEND_URL}/api/users/verify-email?token=${verificationToken}`;
