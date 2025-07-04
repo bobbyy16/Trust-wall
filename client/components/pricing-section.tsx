@@ -1,11 +1,17 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Check, Zap } from "lucide-react"
-import Link from "next/link"
-import { motion } from "framer-motion"
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Check, Zap } from "lucide-react";
+import Link from "next/link";
+import { motion } from "framer-motion";
 
 const plans = [
   {
@@ -56,7 +62,7 @@ const plans = [
     cta: "Contact Sales",
     popular: false,
   },
-]
+];
 
 export function PricingSection() {
   return (
@@ -79,7 +85,8 @@ export function PricingSection() {
             viewport={{ once: true }}
             className="text-xl text-muted-foreground"
           >
-            Choose the perfect plan for your business. Upgrade or downgrade at any time.
+            Choose the perfect plan for your business. Upgrade or downgrade at
+            any time.
           </motion.p>
         </div>
 
@@ -101,14 +108,24 @@ export function PricingSection() {
                   </Badge>
                 </div>
               )}
-              <Card className={`h-full ${plan.popular ? "border-primary shadow-lg scale-105" : "border-border"}`}>
+              <Card
+                className={`h-full ${
+                  plan.popular
+                    ? "border-primary shadow-lg scale-105"
+                    : "border-border"
+                }`}
+              >
                 <CardHeader className="text-center pb-8">
                   <CardTitle className="text-2xl">{plan.name}</CardTitle>
                   <div className="mt-4">
                     <span className="text-4xl font-bold">{plan.price}</span>
-                    {plan.price !== "$0" && <span className="text-muted-foreground">/month</span>}
+                    {plan.price !== "$0" && (
+                      <span className="text-muted-foreground">/month</span>
+                    )}
                   </div>
-                  <CardDescription className="text-base mt-2">{plan.description}</CardDescription>
+                  <CardDescription className="text-base mt-2">
+                    {plan.description}
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <ul className="space-y-3">
@@ -119,7 +136,12 @@ export function PricingSection() {
                       </li>
                     ))}
                   </ul>
-                  <Button asChild className="w-full" variant={plan.popular ? "default" : "outline"} size="lg">
+                  <Button
+                    asChild
+                    className="w-full"
+                    variant={plan.popular ? "default" : "outline"}
+                    size="lg"
+                  >
                     <Link href="/signup">{plan.cta}</Link>
                   </Button>
                 </CardContent>
@@ -139,5 +161,5 @@ export function PricingSection() {
         </motion.div>
       </div>
     </section>
-  )
+  );
 }

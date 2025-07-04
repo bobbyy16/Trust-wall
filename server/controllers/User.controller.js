@@ -32,7 +32,7 @@ exports.signup = async (req, res) => {
     // call save explicitly to trigger pre-save hook
     await user.save();
 
-    const verifyLink = `${process.env.BACKEND_URL}/api/users/verify-email?token=${verificationToken}`;
+    const verifyLink = `${process.env.FRONTEND_URL}/api/users/verify-email?token=${verificationToken}`;
     const html = `<p>Hello ${name},</p><p>Please verify your email by clicking <a href="${verifyLink}">here</a>.</p>`;
 
     await sendEmail(email, "Verify your email", html);
@@ -113,7 +113,8 @@ exports.forgotPassword = async (req, res) => {
     user.resetPasswordExpires = Date.now() + 60 * 60 * 1000; // 1 hour
     await user.save();
 
-    const resetLink = `${process.env.BACKEND_URL}/api/users/reset-password?token=${resetToken}`;
+    // ✅ Fixed: Link should go to frontend reset-password page, not API endpoint
+    const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
     const html = `<p>Reset your password by clicking <a href="${resetLink}">here</a>. This link expires in 1 hour.</p>`;
 
     await sendEmail(user.email, "Password Reset Request", html);
@@ -123,7 +124,6 @@ exports.forgotPassword = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
-
 // @desc Reset password
 exports.resetPassword = async (req, res) => {
   try {

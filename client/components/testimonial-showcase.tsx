@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Star } from "lucide-react"
-import { motion } from "framer-motion"
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Star } from "lucide-react";
+import { motion } from "framer-motion";
 
 const testimonials = [
   {
@@ -33,7 +33,7 @@ const testimonials = [
     content:
       "Customer trust is everything in e-commerce. Trust Wall helps us showcase authentic reviews that actually convert visitors into buyers.",
   },
-]
+];
 
 export function TestimonialShowcase() {
   return (
@@ -56,7 +56,8 @@ export function TestimonialShowcase() {
             viewport={{ once: true }}
             className="text-xl text-muted-foreground"
           >
-            See how companies like yours are using Trust Wall to build credibility and drive growth.
+            See how companies like yours are using Trust Wall to build
+            credibility and drive growth.
           </motion.p>
         </div>
 
@@ -73,10 +74,15 @@ export function TestimonialShowcase() {
                 <CardContent className="p-6">
                   <div className="flex items-center gap-1 mb-4">
                     {Array.from({ length: testimonial.rating }).map((_, i) => (
-                      <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                      <Star
+                        key={i}
+                        className="h-4 w-4 fill-yellow-400 text-yellow-400"
+                      />
                     ))}
                   </div>
-                  <p className="text-muted-foreground mb-6 leading-relaxed">"{testimonial.content}"</p>
+                  <p className="text-muted-foreground mb-6 leading-relaxed">
+                    "{testimonial.content}"
+                  </p>
                   <div className="flex items-center gap-3">
                     <img
                       src={testimonial.image || "/placeholder.svg"}
@@ -109,5 +115,5 @@ export function TestimonialShowcase() {
         </motion.div>
       </div>
     </section>
-  )
+  );
 }
