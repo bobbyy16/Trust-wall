@@ -52,6 +52,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     // Check for existing session
     const token = localStorage.getItem("token");
+    console.log("Checking for existing token:", token ? "found" : "not found");
+
     if (token && token !== "undefined" && token !== "null") {
       fetchUser(token);
     } else {
@@ -61,33 +63,67 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }, []);
 
-  const fetchUser = async (token: string) => {
+  const fetchUser = async (token: string, retryCount = 0) => {
+    const maxRetries = 3;
+
     try {
+      console.log(`Fetching user with token... (attempt ${retryCount + 1})`);
       const res = await fetch(`${API_BASE_URL}/users/me`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       });
 
-      // If token is invalid, clear it but don't throw error
+      console.log("Fetch user response status:", res.status);
+
+      // If token is invalid, clear it
       if (!res.ok) {
         if (res.status === 401 || res.status === 403) {
           console.log("Token expired or invalid, clearing session");
           localStorage.removeItem("token");
           setUser(null);
+          setLoading(false);
           return;
         }
-        // For other errors, just log and continue
-        console.warn("Failed to fetch user:", res.status);
+        // For other errors, throw to trigger catch block
+        throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+      }
+
+      const responseData = await res.json();
+      console.log("User data fetched successfully:", responseData);
+
+      if (responseData.user) {
+        setUser(responseData.user);
+        console.log("User set in state");
+      } else {
+        console.warn("No user data in response");
+        localStorage.removeItem("token");
+        setUser(null);
+      }
+
+      // Set loading to false after successful fetch
+      setLoading(false);
+    } catch (err) {
+      console.error("Error fetching user:", err);
+
+      // Check if it's a network error and we can retry
+      if (
+        err instanceof TypeError &&
+        err.message.includes("fetch") &&
+        retryCount < maxRetries
+      ) {
+        console.log(`Network error - retrying in ${(retryCount + 1) * 1000}ms`);
+        setTimeout(() => {
+          fetchUser(token, retryCount + 1);
+        }, (retryCount + 1) * 1000);
         return;
       }
 
-      const { user } = await res.json();
-      setUser(user);
-    } catch (err) {
-      console.error("Error fetching user:", err);
-      // Don't clear token on network errors - keep user logged in
-      // localStorage.removeItem("token")
-      // setUser(null)
-    } finally {
+      // If we've exhausted retries or it's not a network error, clear token
+      console.log("Max retries reached or non-network error - clearing token");
+      localStorage.removeItem("token");
+      setUser(null);
       setLoading(false);
     }
   };
@@ -107,6 +143,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
 
     const data = await response.json();
+    console.log("Login response:", data);
 
     // Ensure token is valid before storing
     if (data.token && data.user) {
@@ -134,6 +171,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   const logout = () => {
+    console.log("Logging out...");
     localStorage.removeItem("token");
     setUser(null);
   };

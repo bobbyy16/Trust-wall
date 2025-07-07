@@ -62,7 +62,7 @@ interface TestimonialWall {
 const API_BASE_URL = "http://localhost:5000/api";
 
 export default function DashboardPage() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
   const [widgets, setWidgets] = useState<Widget[]>([]);
@@ -79,13 +79,18 @@ export default function DashboardPage() {
   });
 
   useEffect(() => {
+    // Wait for auth loading to complete
+    if (authLoading) return;
+
+    // Only redirect if auth is not loading and user is null
     if (!user) {
       router.push("/login");
       return;
     }
 
+    // User is authenticated, fetch dashboard data
     fetchDashboardData();
-  }, [user, router]);
+  }, [user, authLoading, router]);
 
   const getAuthHeaders = () => ({
     Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -220,10 +225,21 @@ export default function DashboardPage() {
     }
   };
 
+  // Show loading spinner while auth is loading
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  // Don't render anything if user is null (will redirect)
   if (!user) {
     return null;
   }
 
+  // Show loading spinner while dashboard data is loading
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">

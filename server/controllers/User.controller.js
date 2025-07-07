@@ -93,6 +93,9 @@ exports.login = async (req, res) => {
         name: user.name,
         email: user.email,
         plan: user.plan,
+        isVerified: user.isVerified,
+        feedbackCount: user.feedbackCount || 0,
+        widgetCount: user.widgetCount || 0,
       },
     });
   } catch (err) {
@@ -124,6 +127,7 @@ exports.forgotPassword = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
 // @desc Reset password
 exports.resetPassword = async (req, res) => {
   try {
@@ -152,7 +156,19 @@ exports.resetPassword = async (req, res) => {
 exports.getProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-password");
-    res.status(200).json(user);
+
+    // ✅ FIXED: Return user data wrapped in 'user' property to match frontend expectations
+    res.status(200).json({
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        plan: user.plan,
+        isVerified: user.isVerified,
+        feedbackCount: user.feedbackCount || 0,
+        widgetCount: user.widgetCount || 0,
+      },
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
