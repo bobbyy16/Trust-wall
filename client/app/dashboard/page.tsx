@@ -255,6 +255,30 @@ export default function DashboardPage() {
     }
   };
 
+  const deleteFeedback = async (feedbackId: string) => {
+    if (!confirm("Are you sure you want to delete this feedback?")) return;
+    try {
+      const response = await fetch(`${API_BASE_URL}/feedbacks/${feedbackId}`, {
+        method: "DELETE",
+        headers: getAuthHeaders(),
+      });
+
+      if (response.ok) {
+        setFeedbacks(feedbacks.filter((f) => f.id !== feedbackId));
+        toast({
+          title: "Success",
+          description: "Feedback deleted successfully",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete feedback",
+        variant: "destructive",
+      });
+    }
+  };
+
   // Show loading spinner while auth is loading
   if (authLoading) {
     return (
@@ -493,26 +517,39 @@ export default function DashboardPage() {
                             {new Date(feedback.createdAt).toLocaleDateString()}
                           </p>
                         </div>
-                        <div className="flex space-x-2 ml-4">
-                          {!feedback.approved && (
-                            <Button
-                              size="sm"
-                              onClick={() => approveFeedback(feedback.id, true)}
-                            >
-                              Approve
-                            </Button>
-                          )}
-                          {feedback.approved && (
+                        <div className="flex items-center space-x-2">
+                          <div className="flex space-x-2 ml-4">
+                            {!feedback.approved && (
+                              <Button
+                                size="sm"
+                                onClick={() =>
+                                  approveFeedback(feedback.id, true)
+                                }
+                              >
+                                Approve
+                              </Button>
+                            )}
+                            {feedback.approved && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() =>
+                                  approveFeedback(feedback.id, false)
+                                }
+                              >
+                                Reject
+                              </Button>
+                            )}
+                          </div>
+                          <div>
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() =>
-                                approveFeedback(feedback.id, false)
-                              }
+                              onClick={() => deleteFeedback(feedback.id)}
                             >
-                              Reject
+                              <Trash2 className="h-4 w-4" />
                             </Button>
-                          )}
+                          </div>
                         </div>
                       </div>
                     </CardContent>
