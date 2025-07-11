@@ -23,11 +23,13 @@ const userRoutes = require("./routes/User.route");
 const widgetRoutes = require("./routes/Widget.route");
 const feedbackRoutes = require("./routes/Feedback.route");
 const testimonialWallRoutes = require("./routes/TestimonialWall.route");
+const waitlistRoutes = require("./routes/waitlist.route");
 
 app.use("/api/users", userRoutes);
 app.use("/api/widgets", widgetRoutes);
 app.use("/api/feedbacks", feedbackRoutes);
 app.use("/api/testimonial-walls", testimonialWallRoutes);
+app.use("/api/waitlist", waitlistRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
