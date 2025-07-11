@@ -118,6 +118,7 @@ export default function DashboardPage() {
         headers: getAuthHeaders(),
       });
       const wallsData = await wallsResponse.json();
+      console.log("Testimonial Walls Data:", wallsData);
 
       if (widgetsResponse.ok) {
         setWidgets(widgetsData.widgets || []);
@@ -220,6 +221,35 @@ export default function DashboardPage() {
       toast({
         title: "Error",
         description: "Failed to delete widget",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const deleteTestimonialWall = async (wallId: string) => {
+    if (!confirm("Are you sure you want to delete this testimonial wall?"))
+      return;
+
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/testimonial-walls/${wallId}`,
+        {
+          method: "DELETE",
+          headers: getAuthHeaders(),
+        }
+      );
+
+      if (response.ok) {
+        setTestimonialWalls(testimonialWalls.filter((w) => w.id !== wallId));
+        toast({
+          title: "Success",
+          description: "Testimonial wall deleted successfully",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete testimonial wall",
         variant: "destructive",
       });
     }
@@ -524,7 +554,7 @@ export default function DashboardPage() {
                 {testimonialWalls.map((wall) => (
                   <Card key={wall.id}>
                     <CardHeader>
-                      <CardTitle>{wall.widget.name} Wall</CardTitle>
+                      <CardTitle>{wall.widget?.name} Wall</CardTitle>
                       <CardDescription>
                         {wall.feedbackCount} testimonials • {wall.averageRating}{" "}
                         avg rating
@@ -544,9 +574,22 @@ export default function DashboardPage() {
                             Preview
                           </Link>
                         </Button>
-                        <Button size="sm" variant="outline">
-                          <Edit className="h-4 w-4" />
-                        </Button>
+                        <div className="flex space-x-2">
+                          <Button size="sm" variant="outline" asChild>
+                            <Link
+                              href={`/dashboard/testimonials/edit/${wall.id}`}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Link>
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => deleteTestimonialWall(wall.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>

@@ -135,34 +135,75 @@ exports.getTestimonialWallByWidget = async (req, res) => {
 };
 
 // @desc Get all testimonial walls for user
+// @desc Get all testimonial walls for user
 exports.getUserTestimonialWalls = async (req, res) => {
   try {
     const userId = req.user.id;
 
+    // Find all testimonial walls for the user
     const testimonialWalls = await TestimonialWall.find({ userId })
-      .populate("widgetId", "name embedId")
-      .populate("feedbackIds", "customerName rating")
-      .sort({ createdAt: -1 });
+      .populate({
+        path: "widgetId",
+        select: "name embedId",
+        model: "Widget",
+      })
+      .populate({
+        path: "feedbackIds",
+        select: "customerName rating",
+        model: "Feedback",
+      })
+      .sort({ createdAt: -1 })
+      .lean(); // Convert to plain JavaScript objects
 
-    res.status(200).json({
-      testimonialWalls: testimonialWalls.map((wall) => ({
+    if (!testimonialWalls || testimonialWalls.length === 0) {
+      return res.status(200).json({
+        testimonialWalls: [],
+        message: "No testimonial walls found for this user",
+      });
+    }
+
+    // Process the walls to calculate statistics
+    const processedWalls = testimonialWalls.map((wall) => {
+      // Handle cases where widget might be null (if deleted)
+      const widgetInfo = wall.widgetId
+        ? {
+            id: wall.widgetId._id,
+            name: wall.widgetId.name,
+            embedId: wall.widgetId.embedId,
+          }
+        : null;
+
+      // Calculate average rating safely
+      const feedbackCount = wall.feedbackIds ? wall.feedbackIds.length : 0;
+      const totalRating = wall.feedbackIds
+        ? wall.feedbackIds.reduce(
+            (sum, feedback) => sum + (feedback.rating || 0),
+            0
+          )
+        : 0;
+      const averageRating = feedbackCount > 0 ? totalRating / feedbackCount : 0;
+
+      return {
         id: wall._id,
         embedId: wall.embedId,
+        name: widgetInfo ? widgetInfo.name : "No Widget",
         embedUrl: `${process.env.FRONTEND_URL}/embed/testimonial/${wall.embedId}`,
-        widget: {
-          id: wall.widgetId._id,
-          name: wall.widgetId.name,
-          embedId: wall.widgetId.embedId,
-        },
-        feedbackCount: wall.feedbackIds.length,
-        averageRating:
-          wall.feedbackIds.reduce((sum, feedback) => sum + feedback.rating, 0) /
-            wall.feedbackIds.length || 0,
+        widget: widgetInfo,
+        feedbackCount,
+        averageRating: parseFloat(averageRating.toFixed(1)), // Round to 1 decimal
         createdAt: wall.createdAt,
-      })),
+      };
+    });
+
+    res.status(200).json({
+      testimonialWalls: processedWalls,
     });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error("Error in getUserTestimonialWalls:", err);
+    res.status(500).json({
+      message: "Failed to retrieve testimonial walls",
+      error: process.env.NODE_ENV === "development" ? err.message : undefined,
+    });
   }
 };
 
@@ -226,7 +267,7 @@ exports.updateTestimonialWall = async (req, res) => {
       });
     }
 
-    // Check if testimonial wall belongs to user
+    // Check if testimonial wall belongs to user - FIX: Add _id to query
     const testimonialWall = await TestimonialWall.findOne({ _id: id, userId });
     if (!testimonialWall) {
       return res.status(404).json({ message: "Testimonial wall not found" });
@@ -261,6 +302,7 @@ exports.updateTestimonialWall = async (req, res) => {
       },
     });
   } catch (err) {
+    console.error("Update testimonial wall error:", err);
     res.status(500).json({ message: err.message });
   }
 };
